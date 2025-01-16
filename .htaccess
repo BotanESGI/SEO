@@ -1,0 +1,71 @@
+# Activer le moteur de réécriture
+RewriteEngine On
+
+# Redirection de www vers non-www
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+# Redirection de /index et /index.php vers /
+RewriteCond %{THE_REQUEST} \s/index(\.php)?\s [NC]
+RewriteRule ^index(\.php)?$ / [R=301,L]
+
+# Redirection de HTTP vers HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# Supprimer l'extension .php de l'URL tout en servant le fichier correspondant
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !\.php$
+RewriteRule ^(.*)$ $1.php [L]
+
+# Compression GZIP
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json application/ld+json application/xml font/woff font/woff2 font/ttf font/eot image/svg+xml image/webp
+
+    # Gestion des navigateurs anciens
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+
+    # Ajout de l'en-tête Vary pour la gestion du cache
+    <IfModule mod_headers.c>
+        Header append Vary Accept-Encoding
+    </IfModule>
+</IfModule>
+
+# SECTION BEGIN GIT PROTECTION
+RedirectMatch 404 /\.git
+# SECTION END GIT PROTECTION
+
+# Redirection vers la page 404 personnalisée
+ErrorDocument 404 /404.php
+ErrorDocument 403 /404.php
+
+# Autres optimisations GZIP...
+<IfModule mod_filter.c>
+    SetOutputFilter DEFLATE
+</IfModule>
+
+# Mise en cache pour les fichiers statiques
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/html "access plus 1 hour"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/json "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html|css|js|json|jpg|jpeg|png|gif|svg|woff|woff2|ttf|eot|ico|webp)$">
+        Header set Cache-Control "public, max-age=31536000"
+    </FilesMatch>
+</IfModule>

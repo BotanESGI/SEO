@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /mentions-legales
+Disallow: /mentions-legales.php
+Disallow: /politique-de-confidentialite
+Disallow: /politique-de-confidentialite.php
+Sitemap: https://bytemeuh-bytemeuh.fr/sitemap.xml
